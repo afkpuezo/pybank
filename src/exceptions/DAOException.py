@@ -3,4 +3,10 @@ A custom exception thrown by DAO classes.
 """
 
 class DAOException(Exception):
-    pass
+    """
+    A custom exception thrown by DAO classes.
+    """
+
+    def __init__(self, message: str = "") -> None:
+        self.message = message
+        super().__init__()
