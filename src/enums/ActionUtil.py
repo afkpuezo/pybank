@@ -48,12 +48,17 @@ _string_to_action_dict: dict[str, Action] = {
 }
 
 
-# Action enum -> user-friendly string representation
 def action_to_string(action: Action) -> str:
+    """
+    Action enum -> user-friendly string representation
+    """
     return _action_to_string_dict[action]
 
 
-# str(enum) -> enum
-# NOT for the user-friendly string representation
+
 def string_to_action(string: str) -> Action:
+    """
+    str(enum) -> enum
+    NOT for the user-friendly string representation
+    """
     return _string_to_action_dict[string]
