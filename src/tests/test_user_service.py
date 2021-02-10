@@ -43,7 +43,7 @@ def test_register_user(user_service: UserService):
     user: User = User("test", UserLevel.CUSTOMER)
     user_service.user_dao.find.return_value = False
     user_service.user_dao.write.return_value = user
-    result: User = user_service.register_user(user)
+    result: User = user_service.register_user("test", UserLevel.CUSTOMER)
     assert result == user
 
 
@@ -54,7 +54,7 @@ def test_register_user_already_exists(user_service: UserService):
     with pytest.raises(ServiceException):
         user: User = User("test", UserLevel.CUSTOMER)
         user_service.user_dao.find.return_value = True
-        user_service.register_user(user)
+        user_service.register_user("test", UserLevel.CUSTOMER)
 
 
 def test_register_user_dao_exception(mocker, user_service: UserService):
@@ -65,7 +65,7 @@ def test_register_user_dao_exception(mocker, user_service: UserService):
         user_service.user_dao.find.side_effect = DAOException("test")
         user: User = User("test", UserLevel.CUSTOMER)
         user_service.user_dao.find.return_value = True
-        user_service.register_user(user)
+        user_service.register_user("test", UserLevel.CUSTOMER)
 
 
 # -----

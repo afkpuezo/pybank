@@ -45,9 +45,9 @@ def test_open_account(account_service: AccountService):
     """
     user: User = User("test")
     expected_account: Account = Account(owner_username = "test")
-    account_service.user_dao.find.return_value = User
+    account_service.user_dao.find.return_value = user
     account_service.account_dao.write.return_value = expected_account
-    result_account: Account = account_service.open_account(user)
+    result_account: Account = account_service.open_account("test")
     assert result_account == expected_account
 
 
@@ -58,7 +58,7 @@ def test_open_account_user_not_found(account_service: AccountService):
     with pytest.raises(ServiceException):
         user: User = User("test")
         account_service.user_dao.find.return_value = None
-        account_service.open_account(user)
+        account_service.open_account("test")
 
 
 def test_open_account_as_admin(account_service: AccountService):
@@ -67,5 +67,64 @@ def test_open_account_as_admin(account_service: AccountService):
     """
     with pytest.raises(ServiceException):
         user: User = User("test", UserLevel.ADMIN)
-        account_service.user_dao.find.return_value = User
-        account_service.open_account(user)
+        account_service.user_dao.find.return_value = user
+        account_service.open_account("test")
+
+
+# -----
+# approve_account TESTS
+# -----
+
+
+def test_approve_account(account_service: AccountService):
+    """
+    Should be able to have an admin approve a pending account.
+    """
+    current_user: User = User("admin", UserLevel.ADMIN)
+    target_account: Account = Account(id = 1) # default values should be good?
+    account_service.user_dao.find.return_value = current_user
+    account_service.account_dao.find.return_value = target_account
+    result_account: Account = account_service.approve_account("admin", 1)
+    assert result_account.is_approved and result_account.id == target_account.id
+
+
+def test_approve_account_user_not_found(account_service: AccountService):
+    """
+    Should not be able to approve an account if the current user does not exist
+    """
+    with pytest.raises(ServiceException):
+        account_service.user_dao.find.return_value = None
+        account_service.approve_account("admin", 1)
+
+
+def test_approve_account_user_not_admin(account_service: AccountService):
+    """
+    Should not be able to approve an account if the current user is a customer
+    """
+    with pytest.raises(ServiceException):
+        current_user: User = User("customer", UserLevel.CUSTOMER)
+        account_service.user_dao.find.return_value = current_user
+        account_service.approve_account("admin", 1)
+
+
+def test_approve_account_account_not_found(account_service: AccountService):
+    """
+    Should not be able to approve an account if the account is not found
+    """
+    with pytest.raises(ServiceException):
+        current_user: User = User("admin", UserLevel.ADMIN)
+        account_service.user_dao.find.return_value = current_user
+        account_service.account_dao.find.return_value = None
+        account_service.approve_account("admin", 1)
+
+
+def test_approve_account_account_not_found(account_service: AccountService):
+    """
+    Should not be able to approve an account if the account is already approved
+    """
+    with pytest.raises(ServiceException):
+        current_user: User = User("admin", UserLevel.ADMIN)
+        target_account: Account = Account(id = 1, is_approved = True)
+        account_service.user_dao.find.return_value = current_user
+        account_service.account_dao.find.return_value = target_account
+        account_service.approve_account("admin", 1)

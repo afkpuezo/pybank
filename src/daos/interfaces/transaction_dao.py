@@ -48,23 +48,18 @@ class TransactionDAO():
         """
         pass
 
-    def find_by_account(self, account: Account, mode: int = 0) -> list[Transaction]:
+    def find_by_account(self, account: Account) -> list[Transaction]:
         """
         Returns a list of all the the Transaction objects involving the given Account.
-        If the mode parameter is 0, all such Transactions will be included; if mode is 1,
-        only Transactions where the account is the source account; if mode is 2, only 
-        Transactions where the account is the destination account.
         NOTE: default implementation just calls find_by_account_id with account's id
         Raises DAOException if there is a problem with the database.
         """
-        return self.find_by_account_id(account.id, mode)
+        return self.find_by_account_id(account.id)
 
-    def find_by_account_id(self, id: int, mode: int = 0) -> list[Transaction]:
+    def find_by_account_id(self, account_id: int) -> list[Transaction]:
         """
         Returns a list of all the the Transaction objects involving the Account with the 
-        given id. If the mode parameter is 0, all such Transactions will be included; if 
-        mode is 1, only Transactions where the account is the source account; if mode is 
-        2, only Transactions where the account is the destination account.
+        given id.
         Raises DAOException if there is a problem with the database.
         """
         pass
