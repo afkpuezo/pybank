@@ -2,10 +2,10 @@
 This 'interface' / abstract class / whatever describes the methods needed for DAO
 functionality related to Transactions.
 """
-from models.Transaction import Transaction
-from models.User import User
-from models.Account import Account
-from enums.ActionUtil import Action
+from models.transaction import Transaction
+from models.user import User
+from models.account import Account
+from enums.action_util import Action
 
 
 class TransactionDAO():

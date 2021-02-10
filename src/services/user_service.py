@@ -3,9 +3,9 @@ Handles the service-layer logic for User-related operations.
 """
 from models.User import User
 #from enums.UserLevelUtil import UserLevel
-from daos.interfaces.UserDAO import UserDAO
-from exceptions.ServiceException import ServiceException
-from exceptions.DAOException import DAOException
+from daos.interfaces.user_dAO import UserDAO
+from exceptions.service_exception import ServiceException
+from exceptions.dao_exception import DAOException
 
 
 class UserService():
