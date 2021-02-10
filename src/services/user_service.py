@@ -1,5 +1,7 @@
 """
 Handles the service-layer logic for User-related operations.
+
+@author: Andrew Curry
 """
 from models.User import User
 #from enums.UserLevelUtil import UserLevel

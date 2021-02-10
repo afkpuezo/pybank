@@ -1,5 +1,7 @@
 """
 A custom exception thrown by Service classes.
+
+@author: Andrew Curry
 """
 
 class ServiceException(Exception):

@@ -1,7 +1,9 @@
 """
 Instances of this class each model a single recorded transaction
+
+@author: Andrew Curry
 """
-from enums.ActionUtil import Action
+from enums.action_util import Action
 
 
 class Transaction():

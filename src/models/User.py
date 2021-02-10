@@ -1,7 +1,9 @@
 """
 Instances of this class each model a single user profile
+
+@author: Andrew Curry
 """
-from enums.UserLevelUtil import UserLevel
+from enums.user_level_util import UserLevel
 
 
 class User():

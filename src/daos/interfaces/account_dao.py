@@ -1,9 +1,11 @@
 """
 This 'interface' / abstract class / whatever describes the methods needed for DAO
 functionality related to Accounts.
+
+@author: Andrew Curry
 """
-from models.Account import Account
-from models.User import User
+from models.account import Account
+from models.user import User
 
 
 class AccountDAO():

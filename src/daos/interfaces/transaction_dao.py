@@ -1,6 +1,8 @@
 """
 This 'interface' / abstract class / whatever describes the methods needed for DAO
 functionality related to Transactions.
+
+@author: Andrew Curry
 """
 from models.transaction import Transaction
 from models.user import User

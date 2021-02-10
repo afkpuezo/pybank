@@ -1,5 +1,7 @@
 """
 Instances of this class each model a single bank account
+
+@author: Andrew Curry
 """
 
 

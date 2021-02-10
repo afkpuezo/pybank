@@ -1,5 +1,7 @@
 """
 A custom exception thrown by DAO classes.
+
+@author: Andrew Curry
 """
 
 class DAOException(Exception):
