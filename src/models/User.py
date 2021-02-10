@@ -19,3 +19,8 @@ class User():
         """
         self.username: str = username
         self.level: UserLevel = level
+    
+    def __eq__(self, other):
+        return isinstance(other, User) \
+                and self.username == other.username \
+                and self.level == other.level

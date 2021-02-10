@@ -20,3 +20,9 @@ class Account():
         self.id: int = id
         self.owner_username: str = owner_username
         self.funds: int = funds
+
+    def __eq__(self, other):
+        return isinstance(other, Account) \
+                and self.id == other.id \
+                and self.owner_username == other.owner_username \
+                and self.funds == other.funds

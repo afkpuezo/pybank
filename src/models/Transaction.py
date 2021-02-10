@@ -36,3 +36,13 @@ class Transaction():
         self.source_account_id: int = source_account_id
         self.destination_account_id: int = destination_account_id
         self.funds_amount: int = funds_amount
+    
+    def __eq__(self, other):
+        return isinstance(other, Transaction) \
+                and self.id == other.id \
+                and self.time == other.time \
+                and self.action == other.action \
+                and self.acting_username == other.acting_username \
+                and self.source_account_id == other.source_account_id \
+                and self.destination_account_id == other.destination_account_id \
+                and self.funds_amount == other.funds_amount
