@@ -157,4 +157,59 @@ class AccountService():
                     return self.account_dao.write(target_account)
         except DAOException as e:
             raise ServiceException("DAOException: " + e.message)
-        
+    
+    def transfer(
+            self, 
+            current_username: str, 
+            source_account_id: int, 
+            destination_account_id: int, 
+            amount: int) -> list[Account]:
+        """
+        Transfers money from the source account into the destination account.
+        Returns a list containing [source, destination] updated.
+        Fails and raises a ServiceException if:
+            - the current user does not exist
+            - the user is not a customer
+            - one of the accounts does not exist
+            - the user does not own the source account
+            - one of the accounts is not open/approved
+            - the funds amount is not positive
+            - there are not enough funds in the source account for the transfer
+            - there is a DAO exception
+        """
+        # is user valid?
+        current_user: User = self.user_dao.find(current_username)
+        if not current_user:
+            raise ServiceException("User '" + current_username + "' not found.")
+        elif current_user.level != UserLevel.CUSTOMER:
+            raise ServiceException("Only CUSTOMERS can withdraw funds.")
+        # is source account valid?
+        source_account: Account = self.account_dao.find(source_account_id)
+        if not source_account:
+            raise ServiceException("Account #" + str(source_account_id) + " not found.")
+        elif source_account.owner_username != current_username:
+            raise ServiceException(
+                    "You do not have permission to access Account #" 
+                    + str(source_account_id))
+        elif not source_account.is_approved:
+            raise ServiceException(
+                    "Account #" + str(source_account_id) + " has not yet been approved.")
+        # is destination account valid?
+        destination_account: Account = self.account_dao.find(destination_account_id)
+        if not destination_account:
+            raise ServiceException(
+                "Account #" + str(destination_account_id) + " not found.")
+        elif not destination_account.is_approved:
+            raise ServiceException(
+                    "Account #" + str(destination_account_id) 
+                    + " has not yet been approved.")
+        # is the funds amount valid?
+        if amount <= 0:
+            raise ServiceException("You must trasnfer a positive amount of funds.")
+        elif amount > source_account.funds:
+            raise ServiceException(
+                "Account #" + str(source_account_id) + " has insufficient funds.")
+        # finally, actually do the transfer
+        source_account.funds -= amount
+        destination_account.funds += amount
+        return self.account_dao.write([source_account, destination_account])

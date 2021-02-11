@@ -341,3 +341,166 @@ def test_withdraw_dao_exception(account_service: AccountService):
     with pytest.raises(ServiceException):
         account_service.user_dao.find.side_effects = DAOException("test")
         account_service.withdraw("test", 1, 1)
+
+
+# -----
+# transfer TESTS
+# -----
+
+
+def test_transfer(account_service: AccountService):
+    """
+    A customer should be able to make a transfer from their approved account to another
+    approved account
+    """
+    current_username: str = "customer"
+    source_account_id: int = 1
+    destination_account_id: int = 2
+    amount: int = 10000
+    initial_funds: int = 123456
+    current_user: User = User(current_username)
+    source_account: Account = \
+            Account(source_account_id, True, current_username, initial_funds)
+    destination_account: Account = \
+            Account(destination_account_id, True, current_username, initial_funds)
+    account_service.user_dao.find.return_value = current_user
+    account_service.account_dao.find.side_effect = [source_account, destination_account]
+    account_service.account_dao.write.return_value = [source_account, destination_account]
+    results: list[Account] = account_service.transfer(
+            current_username, source_account_id, destination_account_id, amount)
+    source_result: Account = results[0]
+    destination_result: Account = results[1]
+    assert source_result.id == \
+            source_account_id and source_result.funds == initial_funds - amount
+    assert destination_result.id == \
+            destination_account_id and destination_result.funds == initial_funds + amount
+
+
+def test_transfer_user_not_found(account_service: AccountService):
+    """
+    Should not be able to transfer with a user that does not exist.
+    """
+    with pytest.raises(ServiceException):
+        account_service.user_dao.find.return_value = None
+        account_service.transfer("customer", 1, 2, 3)
+
+
+def test_transfer_source_account_not_found(account_service: AccountService):
+    """
+    Should not be able to transfer if the source account does not exist.
+    """
+    with pytest.raises(ServiceException):
+        current_username: str = "customer"
+        current_user: User = User(current_username)
+        account_service.user_dao.find.return_value = current_user
+        account_service.account_dao.find.return_value = None
+        account_service.transfer("customer", 1, 2, 3)
+
+
+def test_transfer_destination_account_not_found(account_service: AccountService):
+    """
+    Should not be able to transfer if the destination account does not exist.
+    """
+    with pytest.raises(ServiceException):
+        current_username: str = "customer"
+        current_user: User = User(current_username)
+        source_account_id: int = 1
+        amount: int = 10000
+        initial_funds: int = 123456
+        account_service.user_dao.find.return_value = current_user
+        source_account: Account = \
+            Account(source_account_id, True, current_username, initial_funds)
+        account_service.account_dao.find.side_effect = [source_account, None]
+        account_service.transfer("customer", source_account_id, 2, amount)
+
+
+def test_transfer_source_account_not_approved(account_service: AccountService):
+    """
+    Should not be able to transfer if the source account has not yet been approved
+    """
+    with pytest.raises(ServiceException):
+        current_username: str = "customer"
+        source_account_id: int = 1
+        destination_account_id: int = 2
+        amount: int = 10000
+        initial_funds: int = 123456
+        current_user: User = User(current_username)
+        source_account: Account = \
+                Account(source_account_id, False, current_username, initial_funds)
+        destination_account: Account = \
+                Account(destination_account_id, True, current_username, initial_funds)
+        account_service.user_dao.find.return_value = current_user
+        account_service.account_dao.find.side_effect = \
+                [source_account, destination_account]
+        account_service.transfer(
+                current_username, source_account_id, destination_account_id, amount)
+
+
+def test_transfer_destination_account_not_approved(account_service: AccountService):
+    """
+    Should not be able to transfer if the destination account has not yet been approved
+    """
+    with pytest.raises(ServiceException):
+        current_username: str = "customer"
+        source_account_id: int = 1
+        destination_account_id: int = 2
+        amount: int = 10000
+        initial_funds: int = 123456
+        current_user: User = User(current_username)
+        source_account: Account = \
+                Account(source_account_id, True, current_username, initial_funds)
+        destination_account: Account = \
+                Account(destination_account_id, False, current_username, initial_funds)
+        account_service.user_dao.find.return_value = current_user
+        account_service.account_dao.find.side_effect = \
+                [source_account, destination_account]
+        account_service.transfer(
+                current_username, source_account_id, destination_account_id, amount)
+
+
+def test_transfer_negative_funds(account_service: AccountService):
+    """
+    Should not be able to transfer if the funds amount is negative
+    """
+    with pytest.raises(ServiceException):
+        current_username: str = "customer"
+        source_account_id: int = 1
+        destination_account_id: int = 2
+        amount: int = -10000
+        initial_funds: int = 123456
+        current_user: User = User(current_username)
+        source_account: Account = \
+                Account(source_account_id, True, current_username, initial_funds)
+        destination_account: Account = \
+                Account(destination_account_id, True, current_username, initial_funds)
+        account_service.user_dao.find.return_value = current_user
+        account_service.account_dao.find.side_effect = \
+                [source_account, destination_account]
+        account_service.account_dao.write.return_value = \
+                [source_account, destination_account]
+        account_service.transfer(
+                current_username, source_account_id, destination_account_id, amount)
+
+
+def test_transfer_overdraft(account_service: AccountService):
+    """
+    Should not be able to transfer if the funds amount is too high for the source account
+    """
+    with pytest.raises(ServiceException):
+        current_username: str = "customer"
+        source_account_id: int = 1
+        destination_account_id: int = 2
+        amount: int = 10000
+        initial_funds: int = 123456
+        current_user: User = User(current_username)
+        source_account: Account = \
+                Account(source_account_id, True, current_username, 10)
+        destination_account: Account = \
+                Account(destination_account_id, True, current_username, initial_funds)
+        account_service.user_dao.find.return_value = current_user
+        account_service.account_dao.find.side_effect = \
+                [source_account, destination_account]
+        account_service.account_dao.write.return_value = \
+                [source_account, destination_account]
+        account_service.transfer(
+                current_username, source_account_id, destination_account_id, amount)
