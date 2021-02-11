@@ -15,8 +15,6 @@ from exceptions.dao_exception import DAOException
 class AccountService():
     """
     Handles the service-layer logic for Account-related operations.
-
-    @author: Andrew Curry
     """
     
     # ----------

@@ -31,23 +31,6 @@ class TransactionDAO():
         """
         pass
 
-    def find_by_acting_user(self, user: User) -> list[Transaction]:
-        """
-        Returns a list of all the the Transaction objects owned by the given user, or an 
-        empty list if there are no such Transactions.
-        NOTE: default implementation just calls find_by_acting_username w/ user's username
-        Raises DAOException if there is a problem with the database.
-        """
-        return self.find_by_acting_username(user.username)
-
-    def find_by_acting_username(self, username: str) -> list[Transaction]:
-        """
-        Returns a list of all the the Transaction objects owned by the user with the given
-        username, or an empty list if there are no such Transactions.
-        Raises DAOException if there is a problem with the database.
-        """
-        pass
-
     def find_by_account(self, account: Account) -> list[Transaction]:
         """
         Returns a list of all the the Transaction objects involving the given Account.
