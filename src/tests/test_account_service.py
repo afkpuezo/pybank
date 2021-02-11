@@ -226,3 +226,118 @@ def test_deposit_dao_exception(account_service: AccountService):
     with pytest.raises(ServiceException):
         account_service.user_dao.find.side_effects = DAOException("test")
         account_service.deposit("test", 1, 1)
+
+
+# -----
+# withdraw TESTS
+# -----
+
+
+def test_withdraw(account_service: AccountService):
+    """
+    A customer should be able to make a withdrawal from their own account.
+    """
+    current_username: str = "customer"
+    account_id: int = 1
+    amount: int = 10000
+    initial_funds: int = 123456
+    current_user: User = User(current_username)
+    target_account: Account = Account(1, True, current_username, initial_funds)
+    account_service.user_dao.find.return_value = current_user
+    account_service.account_dao.find.return_value = target_account
+    account_service.account_dao.write.return_value = target_account
+    result_account: Account = \
+            account_service.withdraw(current_username, account_id, amount)
+    assert result_account.id == target_account.id
+    assert result_account.funds == initial_funds - amount
+
+
+def test_withdraw_user_not_found(account_service: AccountService):
+    """
+    Should not be able to withdraw with a user that doesn't exist.
+    """
+    with pytest.raises(ServiceException):
+        account_service.user_dao.find.return_value = None
+        account_service.withdraw("customer", 1, 10000)
+
+
+def test_withdraw_user_not_customer(account_service: AccountService):
+    """
+    Should not be able to withdraw with an admin
+    """
+    with pytest.raises(ServiceException):
+        current_username: str = "admin"
+        current_user: User = User(current_username, UserLevel.ADMIN)
+        account_service.user_dao.find.return_value = current_user
+        account_service.withdraw(current_username, 1, 1)
+
+
+def test_withdraw_account_not_found(account_service: AccountService):
+    """
+    Should not be able to withdraw into an account that does not exist
+    """
+    with pytest.raises(ServiceException):
+        current_username: str = "customer"
+        current_user: User = User(current_username)
+        account_service.user_dao.find.return_value = current_user
+        account_service.account_dao.find.return_value = None
+        account_service.withdraw(current_username, 1, 1)
+
+
+def test_withdraw_account_not_approved(account_service: AccountService):
+    """
+    Should not be able to withdraw into an account that has not been approved yet
+    """
+    with pytest.raises(ServiceException):
+        current_username: str = "customer"
+        account_id: int = 1
+        amount: int = 10000
+        initial_funds: int = 123456
+        current_user: User = User(current_username)
+        target_account: Account = Account(1, False, current_username, initial_funds)
+        account_service.user_dao.find.return_value = current_user
+        account_service.account_dao.find.return_value = target_account
+        account_service.withdraw(current_username, account_id, amount)
+
+
+def test_withdraw_negative_funds(account_service: AccountService):
+    """
+    Should not be able to make a negative withdraw
+    """
+    with pytest.raises(ServiceException):
+        current_username: str = "customer"
+        account_id: int = 1
+        amount: int = -10000
+        initial_funds: int = 123456
+        current_user: User = User(current_username)
+        target_account: Account = Account(1, True, current_username, initial_funds)
+        account_service.user_dao.find.return_value = current_user
+        account_service.account_dao.find.return_value = target_account
+        account_service.account_dao.write.return_value = target_account
+        account_service.withdraw(current_username, account_id, amount)
+
+
+def test_withdraw_overdraft(account_service: AccountService):
+    """
+    Should not be able to withdraw more money than exists in the account
+    """
+    with pytest.raises(ServiceException):
+        current_username: str = "customer"
+        account_id: int = 1
+        amount: int = 1001
+        initial_funds: int = 1000
+        current_user: User = User(current_username)
+        target_account: Account = Account(1, True, current_username, initial_funds)
+        account_service.user_dao.find.return_value = current_user
+        account_service.account_dao.find.return_value = target_account
+        account_service.account_dao.write.return_value = target_account
+        account_service.withdraw(current_username, account_id, amount)
+
+
+def test_withdraw_dao_exception(account_service: AccountService):
+    """
+    Should raise a service exception when there is a dao exception
+    """
+    with pytest.raises(ServiceException):
+        account_service.user_dao.find.side_effects = DAOException("test")
+        account_service.withdraw("test", 1, 1)

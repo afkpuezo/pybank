@@ -116,4 +116,45 @@ class AccountService():
                     return self.account_dao.write(target_account)
         except DAOException as e:
             raise ServiceException("DAOException: " + e.message)
+    
+    def withdraw(self, current_username: str, account_id: int, amount: int) -> Account:
+        """
+        A customer makes a withdrawal from their own account.
+        Fails and raises a ServiceException if:
+            - the current user does not exist
+            - the user is not a customer
+            - the account does not exist
+            - the user does not own the account
+            - the account is not open/approved
+            - the funds amount is not positive
+            - there are not enough funds in the account for a withdrawal
+            - there is a DAO exception
+        """
+        try:
+            current_user: User = self.user_dao.find(current_username)
+            if not current_user:
+                raise ServiceException("User '" + current_username + "' not found.")
+            elif current_user.level != UserLevel.CUSTOMER:
+                raise ServiceException("Only CUSTOMERS can withdraw funds.")
+            else:  # if user is valid
+                target_account: Account = self.account_dao.find(account_id)
+                if not target_account:
+                    raise ServiceException("Account #" + str(account_id) + " not found.")
+                elif target_account.owner_username != current_username:
+                    raise ServiceException(
+                            "You do not have permission to access Account #" 
+                            + str(account_id))
+                elif not target_account.is_approved:
+                    raise ServiceException(
+                            "Account #" + str(account_id) + " has not yet been approved.")
+                elif amount <= 0:
+                    raise ServiceException("You must withdraw a positive amount.")
+                elif amount > target_account.funds:
+                    raise ServiceException(
+                        "Account #" + str(account_id) + " has insufficient funds.")
+                else:  # valid user and account and amount
+                    target_account.funds -= amount
+                    return self.account_dao.write(target_account)
+        except DAOException as e:
+            raise ServiceException("DAOException: " + e.message)
         
