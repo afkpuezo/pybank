@@ -77,9 +77,12 @@ class Account():
         """
         Returns a new Account based on the information in the given dict
         """
-        result: Account = Account()
-        result.id = int(d["_id"])
-        result.is_approved = bool(d["is_approved"])
-        result.owner_username = d["owner_username"]
-        result.funds = int(d["funds"])
-        return result
+        if d:
+            result: Account = Account()
+            result.id = int(d["_id"])
+            result.is_approved = bool(d["is_approved"])
+            result.owner_username = d["owner_username"]
+            result.funds = int(d["funds"])
+            return result
+        else:
+            return None

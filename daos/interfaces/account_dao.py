@@ -29,19 +29,11 @@ class AccountDAO():
         """
         pass
 
-    def find_by_owner(self, user: User) -> list[Account]:
+    def find_by_owner(self, username: str) -> list[Account]:
         """
         Returns a list of all the the Account objects owned by the given user, or an empty
         list if there are no such Accounts.
         NOTE: default implementation just calls find_by_owner_username w/ user's username
-        Raises DAOException if there is a problem with the database.
-        """
-        return self.find_by_owner_username(user.username)
-
-    def find_by_owner_username(self, username: str) -> list[Account]:
-        """
-        Returns a list of all the the Account objects owned by the user with the given 
-        username, or an empty list if there are no such Accounts.
         Raises DAOException if there is a problem with the database.
         """
         pass

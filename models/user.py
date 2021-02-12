@@ -59,7 +59,10 @@ class User():
         """
         Returns a new user based on the information in the given dict
         """
-        result: User = User()
-        result.username = d["username"]
-        result.level = string_to_user_level(d["level"])
-        return result
+        if d:
+            result: User = User()
+            result.username = d["username"]
+            result.level = string_to_user_level(d["level"])
+            return result
+        else:
+            return None
