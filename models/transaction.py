@@ -84,3 +84,34 @@ class Transaction():
         result.destination_account_id = int(vals[5])
         result.funds_amount = int(vals[6])
         return result
+
+    def to_dict(self) -> dict:
+        """
+        Returns a dict representation of this transaction.
+        """
+        d: dict = {
+            "time" : self.time,
+            "action" : str(self.action),
+            "acting_username" : self.acting_username,
+            "source_account_id" : self.source_account_id,
+            "destination_account_id" : self.destination_account_id,
+            "funds_amount" : self.funds_amount,
+        }
+        if self.id != -1:
+            d["_id"] = self.id
+        return d
+    
+    def from_dict(d: dict):
+        """
+        Returns a new tx based on the information in the given dicts
+        """
+        result: Transaction = Transaction()
+        result.id = int(d["_id"])
+        result.time = int(d["time"])
+        result.action = string_to_action(d["action"])
+        result.acting_username = d["acting_username"]
+        result.source_account_id = int(d["source_account_id"])
+        result.destination_account_id = int(d["destination_account_id"])
+        result.funds_amount = int(d["funds_amount"])
+        return result
+

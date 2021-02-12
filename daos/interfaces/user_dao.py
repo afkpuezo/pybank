@@ -20,7 +20,7 @@ class UserDAO():
         """
         pass
 
-    def find(self, username: str):
+    def find(self, username: str) -> User:
         """
         Returns the User object associated with the given username.
         Returns null if no such User is found.

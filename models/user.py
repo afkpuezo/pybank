@@ -45,3 +45,21 @@ class User():
         result: User = User()
         result.username = vals[0]
         result.level = string_to_user_level(vals[1])
+
+    def to_dict(self) -> dict:
+        """
+        Returns a dict representation of this user.
+        """
+        return {
+            "username": self.username,
+            "level": str(self.level)
+        }
+    
+    def from_dict(d: dict):# -> User:
+        """
+        Returns a new user based on the information in the given dict
+        """
+        result: User = User()
+        result.username = d["username"]
+        result.level = string_to_user_level(d["level"])
+        return result

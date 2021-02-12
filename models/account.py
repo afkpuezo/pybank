@@ -59,3 +59,27 @@ class Account():
         result.owner_username = vals[2]
         result.funds = int(vals[3])
         return result
+    
+    def to_dict(self) -> dict:
+        """
+        Returns a dict representation of this account.
+        """
+        d: dict = {
+            "is_approved" : self.is_approved,
+            "owner_username" : self.owner_username,
+            "funds" : self.funds,
+        }
+        if self.id != -1:
+            d["_id"] = self.id
+        return d
+    
+    def from_dict(d: dict):
+        """
+        Returns a new Account based on the information in the given dict
+        """
+        result: Account = Account()
+        result.id = int(d["_id"])
+        result.is_approved = bool(d["is_approved"])
+        result.owner_username = d["owner_username"]
+        result.funds = int(d["funds"])
+        return result
