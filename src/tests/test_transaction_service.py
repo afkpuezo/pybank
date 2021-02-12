@@ -3,6 +3,7 @@ Contains unit tests for the TransactionService class.
 
 @author: Andrew Curry
 """
+from datetime import datetime
 from daos.interfaces.account_dao import AccountDAO
 from daos.interfaces.user_dao import UserDAO
 from enums.user_level_util import UserLevel
@@ -125,8 +126,37 @@ def test_find_by_account_account_not_found(transaction_service: TransactionServi
 
 def test_find_by_account_dao_exception(transaction_service: TransactionService):
     """
-    Shouldn't be able to find tx's with a user that doesn't exist
+    Should raise a service exception when there is a dao exception
     """
     with pytest.raises(ServiceException):
         transaction_service.user_dao.find.side_effect = DAOException("test")
         transaction_service.find_by_account("test", 1)
+
+
+# -----
+# find_all_in_last_hour TESTS
+# -----
+
+
+def test_find_all_in_last_hour(transaction_service: TransactionService):
+    """
+    Should be able to find some tx's
+    """
+    txs: list[Transaction] = []  # a dummy list of transactions to return
+    for x in range(0, 3):
+        tx: Transaction = Transaction()
+        tx.time = datetime.timestamp(datetime.now()) - 250
+        txs.append(tx)
+    transaction_service.transaction_dao.find_after_time.return_value = txs
+    result_list: list[Transaction] = transaction_service.find_all_in_last_hour()
+    assert result_list == txs
+
+
+def test_find_all_in_last_hour_dao_exception(transaction_service: TransactionService):
+    """
+    Should raise a service exception when there is a dao exception
+    """
+    with pytest.raises(ServiceException):
+        transaction_service.transaction_dao.find_after_time.side_effect \
+                = DAOException("test")
+        result_list: list[Transaction] = transaction_service.find_all_in_last_hour()

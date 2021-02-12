@@ -74,3 +74,16 @@ class TransactionService():
             return self.transaction_dao.find_by_account(account_id)
         except DAOException as e:
             raise ServiceException("DAOException: " + e.message)
+    
+    def find_all_in_last_hour(self) -> list[Transaction]:
+        """
+        Returns a list of all transactions that took place within the last hour.
+        Fails and raises a ServiceException if:
+            - there is a DAOException
+        """
+        # calculate the time stamp for 1 hour ago
+        time_start: int = datetime.timestamp(datetime.now()) - 3600
+        try:
+            return self.transaction_dao.find_after_time(time_start)
+        except DAOException as e:
+            raise ServiceException("DAOException: " + e.message)
