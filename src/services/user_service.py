@@ -29,8 +29,11 @@ class UserService():
     def register_user(self, username: str, level: UserLevel) -> User:
         """
         If user is unique (eg: username not yet in the system), register it.
+        Username must not have any spaces.
         Raises a ServiceException if there is a problem, such as if user is not unique.
         """
+        if ' ' in username:
+            raise ServiceException("Usernames must not have spaces in them.")
         try:
             if self.user_dao.find(username):
                 raise ServiceException(

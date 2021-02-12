@@ -33,3 +33,29 @@ class Account():
                 and self.is_approved == other.is_approved \
                 and self.owner_username == other.owner_username \
                 and self.funds == other.funds
+
+    # ----------
+    # SERIALIZATION / DESERIALIZATION
+    # ----------
+    
+    def encode(self) -> bytes:
+        """
+        Returns a bytes representation of this account.
+        """
+        code: str = str(id) \
+                + " " + str(self.is_approved) \
+                + " " + self.owner_username \
+                + " " + str(self.funds)
+        return code.encode()
+
+    def decode(code: bytes):# -> Account:
+        """
+        Returns a new Account based on the information in the given bytes
+        """
+        vals: list[str] = str(bytes).split(' ')
+        result: Account = Account()
+        result.id = int(vals[0])
+        result.is_approved = bool(vals[1])
+        result.owner_username = vals[2]
+        result.funds = int(vals[3])
+        return result

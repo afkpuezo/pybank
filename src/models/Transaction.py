@@ -4,6 +4,7 @@ Instances of this class each model a single recorded transaction
 @author: Andrew Curry
 """
 from enums.action_util import Action
+from enums.action_util import string_to_action
 
 
 class Transaction():
@@ -50,3 +51,36 @@ class Transaction():
                 and self.source_account_id == other.source_account_id \
                 and self.destination_account_id == other.destination_account_id \
                 and self.funds_amount == other.funds_amount
+    
+    # ----------
+    # SERIALIZATION / DESERIALIZATION
+    # ----------
+
+    def encode(self) -> bytes:
+        """
+        Returns a bytes representation of this transaction.
+        """
+        code: str = str(self.id) + " " \
+                + str(self.time) + " " \
+                + str(self.action) + " " \
+                + str(self.was_success) + " " \
+                + self.acting_username + " " \
+                + str(self.source_account_id) + " " \
+                + str(self.destination_account_id) + " " \
+                + str(self.funds_amount)
+        return code.encode()
+    
+    def decode(code: bytes):# -> Transaction:
+        """
+        Returns a new tx based on the information in the given bytes
+        """
+        vals: list[str] = str(bytes).split(' ')
+        result: Transaction = Transaction()
+        result.id = int(vals[0])
+        result.time = int(vals[1])
+        result.action = string_to_action(vals[2])
+        result.acting_username = vals[3]
+        result.source_account_id = int(vals[4])
+        result.destination_account_id = int(vals[5])
+        result.funds_amount = int(vals[6])
+        return result
