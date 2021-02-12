@@ -17,6 +17,8 @@ class Action(Enum):
     WITHDRAW = 5
     TRANSFER = 6
     VIEW_TRANSACTIONS = 7
+    APPROVE_ACCOUNT = 8
+    QUIT = 9
 
 # ----------
 # FUNCTIONS (and helper variables)
@@ -33,6 +35,8 @@ _action_to_string_dict: dict[Action, str] = {
     Action.WITHDRAW : "Withdraw funds",
     Action.TRANSFER : "Transfer funds",
     Action.VIEW_TRANSACTIONS : "View transaction history",
+    Action.APPROVE_ACCOUNT : "Approve a pending account",
+    Action.QUIT : "Quit the application",
 }
 
 
@@ -45,6 +49,8 @@ _string_to_action_dict: dict[str, Action] = {
     "Action.WITHDRAW" : Action.WITHDRAW,
     "Action.TRANSFER" : Action.TRANSFER,
     "Action.VIEW_TRANSACTIONS" : Action.VIEW_TRANSACTIONS,
+    "Action.APPROVE_ACCOUNT" : Action.APPROVE_ACCOUNT,
+    "Action.QUIT" : Action.QUIT,
 }
 
 
@@ -53,7 +59,6 @@ def action_to_string(action: Action) -> str:
     Action enum -> user-friendly string representation
     """
     return _action_to_string_dict[action]
-
 
 
 def string_to_action(string: str) -> Action:

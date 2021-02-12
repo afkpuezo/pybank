@@ -90,6 +90,7 @@ class Transaction():
         Returns a dict representation of this transaction.
         """
         d: dict = {
+            "id" : self.id,
             "time" : self.time,
             "action" : str(self.action),
             "acting_username" : self.acting_username,
@@ -97,8 +98,6 @@ class Transaction():
             "destination_account_id" : self.destination_account_id,
             "funds_amount" : self.funds_amount,
         }
-        if self.id != -1:
-            d["_id"] = self.id
         return d
     
     def from_dict(d: dict):
@@ -106,7 +105,7 @@ class Transaction():
         Returns a new tx based on the information in the given dicts
         """
         result: Transaction = Transaction()
-        result.id = int(d["_id"])
+        result.id = int(d["id"])
         result.time = int(d["time"])
         result.action = string_to_action(d["action"])
         result.acting_username = d["acting_username"]

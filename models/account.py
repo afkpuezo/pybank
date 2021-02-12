@@ -16,10 +16,6 @@ class Account():
             owner_username: str = "", 
             funds: int = 0) -> None:
         """
-        id defaults to -1
-        is_approved defaults to False
-        owner_username defaults to ""
-        funds defaults to 0
         Does NOT validate params
         """
         self.id: int = id
@@ -65,12 +61,11 @@ class Account():
         Returns a dict representation of this account.
         """
         d: dict = {
+            "id" : self.id,
             "is_approved" : self.is_approved,
             "owner_username" : self.owner_username,
             "funds" : self.funds,
         }
-        if self.id != -1:
-            d["_id"] = self.id
         return d
     
     def from_dict(d: dict):
@@ -79,7 +74,7 @@ class Account():
         """
         if d:
             result: Account = Account()
-            result.id = int(d["_id"])
+            result.id = int(d["id"])
             result.is_approved = bool(d["is_approved"])
             result.owner_username = d["owner_username"]
             result.funds = int(d["funds"])

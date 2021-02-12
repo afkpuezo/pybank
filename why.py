@@ -1,14 +1,18 @@
+from daos.interfaces.user_dao import UserDAO
+from models.user import User
+from daos.impls.transaction_dao_impl import TransactionDAOImpl
 from daos.impls.account_dao_impl import AccountDAOImpl
-from models.account import Account
-from enums.user_level_util import UserLevel
-import pymongo
+from daos.impls.user_dao_impl import UserDAOImpl
+from services.account_service import AccountService
+from services.transaction_service import TransactionService
+from services.user_service import UserService
+from views.bank_view import BankView
 
-pymongo.MongoClient().drop_database("pybank")
-impl: AccountDAOImpl = AccountDAOImpl()
-id_1: int = impl.write(Account(owner_username = "customer", funds = 1)).id
-impl.write(Account(owner_username = "customer", funds = 2))
-impl.write(Account(owner_username = "customer", funds = 3))
-impl.write(Account(owner_username = "customer2", funds = 4))
-impl.write(Account(owner_username = "customer2", funds = 5))
-found: Account = impl.find(id_1)
-print("found with id_1:", found)
+udi = UserDAOImpl()
+adi = AccountDAOImpl()
+tdi = TransactionDAOImpl()
+user_service: UserService = UserService(udi)
+account_service: AccountService = AccountService(adi, udi)
+transaction_service: TransactionService = TransactionService(tdi, adi, udi)
+view: BankView = BankView(user_service, account_service, transaction_service)
+view.interact()

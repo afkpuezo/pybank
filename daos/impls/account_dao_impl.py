@@ -5,6 +5,7 @@ A straightforward implementation of AccountDAO.
 """
 from daos.interfaces.account_dao import AccountDAO
 from models.account import Account
+from models.user import User
 from exceptions.dao_exception import DAOException
 import pymongo
 
@@ -18,9 +19,9 @@ class AccountDAOImpl(AccountDAO):
     # INTERFACE METHODS
     # ----------
 
-    def write(self, account):
+    def write(self, account: Account) -> Account:
         """
-        Save or update the given account object(s).
+        Save or update the given account object.
         Raises DAOException if there is a problem with the database.
         """
         try:
@@ -28,9 +29,14 @@ class AccountDAOImpl(AccountDAO):
             mydb = myclient["pybank"]
             mycol = mydb["accounts"]
             if account.id == -1: # not yet saved
+                # get account with the current highest id
+                highest_account: dict = mycol.find_one(sort=[("id", -1)])
+                if highest_account:
+                    account.id = highest_account["id"] + 1
+                else:
+                    account.id = 1
                 result = mycol.insert_one(account.to_dict())
                 if result:
-                    account.id = result.inserted_id
                     return account
                 else:
                     raise DAOException("Unable to write account.")
@@ -40,11 +46,10 @@ class AccountDAOImpl(AccountDAO):
                     return account
                 else:
                     raise DAOException("Unable to write account.")
-
         except Exception as e:
             raise DAOException("Problem in AccountDAOImpl.")
 
-    def find(self, id):
+    def find(self, id: int):
         """
         Returns the Account object(s) corresponding to the given id(s), or None if there
         is(are) no such Account(s)
@@ -54,7 +59,7 @@ class AccountDAOImpl(AccountDAO):
             myclient = pymongo.MongoClient()
             mydb = myclient["pybank"]
             mycol = mydb["accounts"]
-            return Account.from_dict(mycol.find_one({"_id": id}))
+            return Account.from_dict(mycol.find_one({"id": id}))
         except Exception as e:
             raise DAOException("Problem in AccountDAOImpl: " + e)
 
@@ -68,6 +73,10 @@ class AccountDAOImpl(AccountDAO):
             myclient = pymongo.MongoClient()
             mydb = myclient["pybank"]
             mycol = mydb["accounts"]
-            return Account.from_dict(mycol.find_many({"owner_username": username}))
+            results = mycol.find({"owner_username": username})
+            answer: list[Account] = []
+            for d in results:
+                answer.append(Account.from_dict(d))
+            return answer
         except Exception as e:
             raise DAOException("Problem in AccountDAOImpl: " + e)
